@@ -87,6 +87,13 @@
         .btn-delete:hover {
             background-color: #d32f2f;
         }
+        .btn-rename {
+            background-color: #9C27B0;
+            color: white;
+        }
+        .btn-rename:hover {
+            background-color: #7B1FA2;
+        }
         .warehouse-card {
             background: #fafafa;
             padding: 15px;
@@ -190,12 +197,20 @@
                     <div class="progress-fill" style="width: 0%;"></div>
                     {% endif %}
                 </div>
-                <form action="/edit/{{ id }}" method="post">
+                <form action="/rename/{{ id }}" method="post">
                     <div class="warehouse-actions">
                         <div>
                             <label for="name-{{ id }}">Rename</label>
                             <input type="text" id="name-{{ id }}" name="name" value="{{ data.name }}">
                         </div>
+                        <div>
+                            <label>&nbsp;</label>
+                            <button type="submit" class="btn-rename">Rename</button>
+                        </div>
+                    </div>
+                </form>
+                <form action="/edit/{{ id }}" method="post">
+                    <div class="warehouse-actions">
                         <div>
                             <label for="amount-{{ id }}">Amount</label>
                             <input type="number" id="amount-{{ id }}" name="amount" min="0" step="0.1" value="10">

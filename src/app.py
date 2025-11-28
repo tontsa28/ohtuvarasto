@@ -57,9 +57,6 @@ def handle_edit_action(varasto, action, amount):
 
 
 def process_edit(data):
-    name = request.form.get("name", "").strip()
-    if name:
-        data["name"] = name
     try:
         amount = float(request.form.get("amount", 0))
         handle_edit_action(data["varasto"], request.form.get("action"), amount)
@@ -72,6 +69,16 @@ def edit(warehouse_id):
     data = store.get(warehouse_id)
     if data:
         process_edit(data)
+    return redirect(url_for("index"))
+
+
+@app.route("/rename/<int:warehouse_id>", methods=["POST"])
+def rename(warehouse_id):
+    data = store.get(warehouse_id)
+    if data:
+        name = request.form.get("name", "").strip()
+        if name:
+            data["name"] = name
     return redirect(url_for("index"))
 
 

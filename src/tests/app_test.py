@@ -49,10 +49,10 @@ class TestWebApp(unittest.TestCase):
         response = self.client.post("/delete/999", follow_redirects=True)
         self.assertEqual(response.status_code, 200)
 
-    def test_edit_warehouse_rename(self):
+    def test_rename_warehouse(self):
         store.add("Original", 100, 0)
 
-        response = self.client.post("/edit/1", data={
+        response = self.client.post("/rename/1", data={
             "name": "Renamed"
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
@@ -112,11 +112,17 @@ class TestWebApp(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(store.warehouses[1]["name"], "New Warehouse")
 
-    def test_edit_with_whitespace_name_keeps_original(self):
+    def test_rename_with_whitespace_name_keeps_original(self):
         store.add("Original", 100, 0)
 
-        response = self.client.post("/edit/1", data={
+        response = self.client.post("/rename/1", data={
             "name": "   "
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(store.warehouses[1]["name"], "Original")
+
+    def test_rename_nonexistent_warehouse(self):
+        response = self.client.post("/rename/999", data={
+            "name": "Test"
+        }, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
