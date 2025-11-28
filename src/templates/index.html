@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Management</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        h2 {
+            color: #555;
+            margin-bottom: 15px;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="number"] {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-create {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-create:hover {
+            background-color: #45a049;
+        }
+        .btn-add {
+            background-color: #2196F3;
+            color: white;
+        }
+        .btn-add:hover {
+            background-color: #1976D2;
+        }
+        .btn-take {
+            background-color: #FF9800;
+            color: white;
+        }
+        .btn-take:hover {
+            background-color: #F57C00;
+        }
+        .btn-delete {
+            background-color: #f44336;
+            color: white;
+        }
+        .btn-delete:hover {
+            background-color: #d32f2f;
+        }
+        .btn-rename {
+            background-color: #9C27B0;
+            color: white;
+        }
+        .btn-rename:hover {
+            background-color: #7B1FA2;
+        }
+        .warehouse-card {
+            background: #fafafa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #eee;
+        }
+        .warehouse-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .warehouse-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .warehouse-stats {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .warehouse-stats span {
+            margin-right: 20px;
+        }
+        .warehouse-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .progress-bar {
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #4CAF50;
+            transition: width 0.3s;
+        }
+        .no-warehouses {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Warehouse Management</h1>
+
+    <div class="section">
+        <h2>Create New Warehouse</h2>
+        <form action="/create" method="post">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" placeholder="Enter name" required>
+                </div>
+                <div class="form-group">
+                    <label for="tilavuus">Capacity</label>
+                    <input type="number" id="tilavuus" name="tilavuus" min="0" step="0.1" value="100" required>
+                </div>
+                <div class="form-group">
+                    <label for="alku_saldo">Initial Amount</label>
+                    <input type="number" id="alku_saldo" name="alku_saldo" min="0" step="0.1" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="btn-create">Create</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="section">
+        <h2>Warehouses</h2>
+        {% if warehouses %}
+            {% for id, data in warehouses.items() %}
+            <div class="warehouse-card">
+                <div class="warehouse-header">
+                    <span class="warehouse-name">{{ data.name }}</span>
+                    <form action="/delete/{{ id }}" method="post" style="display: inline;">
+                        <button type="submit" class="btn-delete">Delete</button>
+                    </form>
+                </div>
+                <div class="warehouse-stats">
+                    <span>Capacity: {{ data.varasto.tilavuus }}</span>
+                    <span>Current: {{ data.varasto.saldo }}</span>
+                    <span>Available: {{ data.varasto.paljonko_mahtuu() }}</span>
+                </div>
+                <div class="progress-bar">
+                    {% if data.varasto.tilavuus > 0 %}
+                    <div class="progress-fill" style="width: {{ (data.varasto.saldo / data.varasto.tilavuus * 100)|round(1) }}%;"></div>
+                    {% else %}
+                    <div class="progress-fill" style="width: 0%;"></div>
+                    {% endif %}
+                </div>
+                <form action="/rename/{{ id }}" method="post">
+                    <div class="warehouse-actions">
+                        <div>
+                            <label for="name-{{ id }}">Rename</label>
+                            <input type="text" id="name-{{ id }}" name="name" value="{{ data.name }}">
+                        </div>
+                        <div>
+                            <label>&nbsp;</label>
+                            <button type="submit" class="btn-rename">Rename</button>
+                        </div>
+                    </div>
+                </form>
+                <form action="/edit/{{ id }}" method="post">
+                    <div class="warehouse-actions">
+                        <div>
+                            <label for="amount-{{ id }}">Amount</label>
+                            <input type="number" id="amount-{{ id }}" name="amount" min="0" step="0.1" value="10">
+                        </div>
+                        <div>
+                            <label>&nbsp;</label>
+                            <button type="submit" name="action" value="add" class="btn-add">Add</button>
+                            <button type="submit" name="action" value="take" class="btn-take">Take</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="no-warehouses">No warehouses yet. Create one above!</p>
+        {% endif %}
+    </div>
+</body>
+</html>
