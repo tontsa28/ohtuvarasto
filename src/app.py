@@ -37,7 +37,9 @@ def index():
 
 @app.route("/create", methods=["POST"])
 def create():
-    name = request.form.get("name", "New Warehouse")
+    name = request.form.get("name", "").strip()
+    if not name:
+        name = "New Warehouse"
     try:
         tilavuus = float(request.form.get("tilavuus", 0))
         alku_saldo = float(request.form.get("alku_saldo", 0))
@@ -55,7 +57,7 @@ def handle_edit_action(varasto, action, amount):
 
 
 def process_edit(data):
-    name = request.form.get("name")
+    name = request.form.get("name", "").strip()
     if name:
         data["name"] = name
     try:
@@ -80,4 +82,4 @@ def delete(warehouse_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()

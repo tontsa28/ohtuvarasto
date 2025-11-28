@@ -93,3 +93,30 @@ class TestWebApp(unittest.TestCase):
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertAlmostEqual(store.warehouses[1]["varasto"].saldo, 50)
+
+    def test_create_with_empty_name_uses_default(self):
+        response = self.client.post("/create", data={
+            "name": "",
+            "tilavuus": "100",
+            "alku_saldo": "0"
+        }, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(store.warehouses[1]["name"], "New Warehouse")
+
+    def test_create_with_whitespace_name_uses_default(self):
+        response = self.client.post("/create", data={
+            "name": "   ",
+            "tilavuus": "100",
+            "alku_saldo": "0"
+        }, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(store.warehouses[1]["name"], "New Warehouse")
+
+    def test_edit_with_whitespace_name_keeps_original(self):
+        store.add("Original", 100, 0)
+
+        response = self.client.post("/edit/1", data={
+            "name": "   "
+        }, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(store.warehouses[1]["name"], "Original")
